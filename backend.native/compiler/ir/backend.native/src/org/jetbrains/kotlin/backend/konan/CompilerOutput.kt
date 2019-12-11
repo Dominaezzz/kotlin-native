@@ -158,7 +158,7 @@ internal fun produceOutput(context: Context) {
                     context.config.includeBinaries,
                     neededLibraries,
                     context.serializedMetadata!!,
-                    context.serializedIr!!,
+                    context.serializedIr,
                     versions,
                     target,
                     output,
