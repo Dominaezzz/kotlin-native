@@ -460,10 +460,10 @@ internal fun PhaseConfig.konanPhasesConfig(config: KonanConfig) {
         disable(serializeDFGPhase)
 
         // Don't serialize anything to a final executable.
-        disableUnless(serializerPhase, config.produce == CompilerOutputKind.LIBRARY)
-        disableIf(dependenciesLowerPhase, config.produce == CompilerOutputKind.LIBRARY)
+        disableUnless(serializerPhase, config.produce.isLibrary)
+        disableIf(dependenciesLowerPhase, config.produce.isLibrary)
         disableUnless(entryPointPhase, config.produce == CompilerOutputKind.PROGRAM)
-        disableIf(bitcodePhase, config.produce == CompilerOutputKind.LIBRARY)
+        disableIf(bitcodePhase, config.produce.isLibrary)
         disableUnless(bitcodeOptimizationPhase, config.produce.involvesLinkStage)
         disableUnless(linkBitcodeDependenciesPhase, config.produce.involvesLinkStage)
         disableUnless(objectFilesPhase, config.produce.involvesLinkStage)

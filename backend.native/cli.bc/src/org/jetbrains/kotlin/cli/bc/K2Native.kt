@@ -310,7 +310,7 @@ private fun selectIncludes(
 ): List<String> {
     val includes = arguments.includes?.toList().orEmpty()
 
-    return if (includes.isNotEmpty() && outputKind == CompilerOutputKind.LIBRARY) {
+    return if (includes.isNotEmpty() && outputKind.isLibrary) {
         configuration.report(
             ERROR,
             "The $INCLUDE_ARG flag is not supported when producing ${outputKind.name.toLowerCase()}"

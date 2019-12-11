@@ -88,7 +88,7 @@ class K2NativeCompilerArguments : CommonCompilerArguments() {
     var mainPackage: String? = null
 
     @Argument(value = "-produce", shortName = "-p",
-            valueDescription = "{program|static|dynamic|framework|library|bitcode}",
+            valueDescription = "{program|static|dynamic|framework|library|descriptors_only_library|bitcode}",
             description = "Specify output file kind")
     var produce: String? = null
 

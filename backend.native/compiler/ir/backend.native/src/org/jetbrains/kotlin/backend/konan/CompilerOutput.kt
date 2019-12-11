@@ -26,11 +26,16 @@ val CompilerOutputKind.isFinalBinary: Boolean get() = when (this) {
     CompilerOutputKind.PROGRAM, CompilerOutputKind.DYNAMIC,
     CompilerOutputKind.STATIC, CompilerOutputKind.FRAMEWORK -> true
     CompilerOutputKind.DYNAMIC_CACHE, CompilerOutputKind.STATIC_CACHE,
-    CompilerOutputKind.LIBRARY, CompilerOutputKind.BITCODE -> false
+    CompilerOutputKind.LIBRARY, CompilerOutputKind.DESCRIPTORS_ONLY_LIBRARY, CompilerOutputKind.BITCODE -> false
+}
+
+val CompilerOutputKind.isLibrary: Boolean get() = when (this) {
+    CompilerOutputKind.LIBRARY, CompilerOutputKind.DESCRIPTORS_ONLY_LIBRARY -> true
+    else -> false
 }
 
 val CompilerOutputKind.involvesBitcodeGeneration: Boolean
-    get() = this != CompilerOutputKind.LIBRARY
+    get() = !isLibrary
 
 internal val Context.producedLlvmModuleContainsStdlib: Boolean
     get() = this.llvmModuleSpecification.containsModule(this.stdlibModule)
@@ -40,7 +45,7 @@ val CompilerOutputKind.involvesLinkStage: Boolean
         CompilerOutputKind.PROGRAM, CompilerOutputKind.DYNAMIC,
         CompilerOutputKind.DYNAMIC_CACHE, CompilerOutputKind.STATIC_CACHE,
         CompilerOutputKind.STATIC, CompilerOutputKind.FRAMEWORK -> true
-        CompilerOutputKind.LIBRARY, CompilerOutputKind.BITCODE -> false
+        CompilerOutputKind.LIBRARY, CompilerOutputKind.DESCRIPTORS_ONLY_LIBRARY, CompilerOutputKind.BITCODE -> false
     }
 
 val CompilerOutputKind.isCache: Boolean
@@ -128,7 +133,7 @@ internal fun produceOutput(context: Context) {
             insertAliasToEntryPoint(context)
             LLVMWriteBitcodeToFile(context.llvmModule!!, output)
         }
-        CompilerOutputKind.LIBRARY -> {
+        CompilerOutputKind.LIBRARY, CompilerOutputKind.DESCRIPTORS_ONLY_LIBRARY -> {
             val output = context.config.outputFiles.outputName
             val libraryName = context.config.moduleId
             val neededLibraries = context.librariesWithDependencies
