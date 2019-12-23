@@ -9,6 +9,7 @@ terms of the MIT license. A copy of the license can be found in the file
   Definition of page queues for each block size
 ----------------------------------------------------------- */
 
+#if !KONAN_MI_MALLOC
 #ifndef MI_IN_PAGE_C
 #error "this file should be included from 'page.c'"
 #endif
@@ -359,3 +360,4 @@ size_t _mi_page_queue_append(mi_heap_t* heap, mi_page_queue_t* pq, mi_page_queue
   }
   return count;
 }
+#endif

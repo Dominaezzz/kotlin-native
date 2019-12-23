@@ -59,21 +59,19 @@ open class CompileToBitcode @Inject constructor(@InputDirectory val srcRoot: Fil
         if (target in excludedTargets) return
         objDir.mkdirs()
         val plugin = project.convention.getPlugin(ExecClang::class.java)
-        var executable = "clang++"
         val commonFlags = listOf("-c", "-emit-llvm", "-I$headersDir")
-        var defaultFlags = commonFlags + listOf("-std=c++14", "-Werror", "-O2") +
-                if (!HostManager().targetByName(target).isMINGW) listOf("-fPIC") else emptyList()
-        var srcFilesPatterns = listOf("**/*.cpp", "**/*.mm")
-        if (language == Language.C) {
-            executable = "clang"
-            defaultFlags = commonFlags + listOf("-std=gnu11", "-O3", "-Wall",
-                    "-Wextra", "-Wno-unknown-pragmas", "-ftls-model=initial-exec")
-            srcFilesPatterns = listOf("**/*.c")
-        }
-        val srcFiles = project.fileTree(srcDir) {
-            it.include("**/*.c")
-            it.exclude(excludeFiles)
-        }.files.map { it.absolutePath }
+        val (executable, defaultFlags, srcFilesPatterns) =
+                if (language == Language.C)
+                    Triple("clang",
+                    commonFlags + listOf("-std=gnu11", "-O3", "-Wall", "-Wextra", "-Wno-unknown-pragmas",
+                            "-ftls-model=initial-exec"),
+                            listOf("**/*.c"))
+                else
+                    Triple("clang++",
+                            commonFlags + listOf("-std=c++14", "-Werror", "-O2") +
+                                    if (!HostManager().targetByName(target).isMINGW) listOf("-fPIC") else emptyList(),
+                            listOf("**/*.cpp", "**/*.mm"))
+
         plugin.execKonanClang(target, Action {
             it.workingDir = objDir
             it.executable = executable

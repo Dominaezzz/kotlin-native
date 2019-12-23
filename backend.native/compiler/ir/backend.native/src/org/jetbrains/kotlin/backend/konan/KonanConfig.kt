@@ -19,10 +19,7 @@ import org.jetbrains.kotlin.konan.TempFiles
 import org.jetbrains.kotlin.konan.file.File
 import org.jetbrains.kotlin.konan.library.KonanLibrary
 import org.jetbrains.kotlin.konan.properties.loadProperties
-import org.jetbrains.kotlin.konan.target.Distribution
-import org.jetbrains.kotlin.konan.target.HostManager
-import org.jetbrains.kotlin.konan.target.KonanTarget
-import org.jetbrains.kotlin.konan.target.PlatformManager
+import org.jetbrains.kotlin.konan.target.*
 import org.jetbrains.kotlin.library.KotlinLibrary
 import org.jetbrains.kotlin.library.resolver.TopologicalLibraryOrder
 
@@ -115,7 +112,7 @@ class KonanConfig(val project: Project, val configuration: CompilerConfiguration
         add(if (memoryModel == MemoryModel.STRICT) "strict.bc" else "relaxed.bc")
         if (shouldCoverLibraries || shouldCoverSources) add("profileRuntime.bc")
         if (configuration.get(KonanConfigKeys.ALLOCATION_MODE) == "opt") {
-            if (target.name in targetsWithoutOptAllocMode) {
+            if (!target.supportsOptimizedAllocator()) {
                 configuration.report(CompilerMessageSeverity.STRONG_WARNING,
                         "Optimized allocation mode isn't supported on target ${target.name}. Used standard mode.")
                 add("std_alloc.bc")

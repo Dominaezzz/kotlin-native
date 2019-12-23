@@ -3,6 +3,7 @@
  * that can be found in the LICENSE file.
  */
 import org.jetbrains.kotlin.CompileToBitcode
+import org.jetbrains.kotlin.UtilsKt
 
 // TODO: consider using some Gradle plugins to build and test
 
@@ -32,9 +33,10 @@ targetList.each { targetName ->
     tasks.create("${targetName}Mimalloc", CompileToBitcode, file('src/mimalloc'), "mimalloc", targetName).configure {
         language = CompileToBitcode.Language.C
         excludeFiles.addAll(["**/alloc-override*.c", "**/page-queue.c", "**/static.c"])
-        excludedTargets.addAll(['wasm32', 'linux_mips32', 'linux_mipsel32', 'zephyr'])
+        if (!UtilsKt.targetSupportsOptimizedAllocator(targetName))
+            excludedTargets.add(targetName)
         srcDir = new File(srcRoot, "c")
-        compilerArgs.add("-DKONAN_MI_MALLOC")
+        compilerArgs.add("-DKONAN_MI_MALLOC=1")
         headersDir = new File(srcDir, "include")
     }
 
