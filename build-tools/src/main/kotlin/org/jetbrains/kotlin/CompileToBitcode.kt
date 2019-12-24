@@ -61,16 +61,16 @@ open class CompileToBitcode @Inject constructor(@InputDirectory val srcRoot: Fil
         val plugin = project.convention.getPlugin(ExecClang::class.java)
         val commonFlags = listOf("-c", "-emit-llvm", "-I$headersDir")
         val (executable, defaultFlags, srcFilesPatterns) =
-                if (language == Language.C)
-                    Triple("clang",
-                    commonFlags + listOf("-std=gnu11", "-O3", "-Wall", "-Wextra", "-Wno-unknown-pragmas",
-                            "-ftls-model=initial-exec"),
+                when (language) {
+                    Language.C -> Triple("clang",
+                            commonFlags + listOf("-std=gnu11", "-O3", "-Wall", "-Wextra", "-Wno-unknown-pragmas",
+                                    "-ftls-model=initial-exec"),
                             listOf("**/*.c"))
-                else
-                    Triple("clang++",
-                            commonFlags + listOf("-std=c++14", "-Werror", "-O2") +
-                                    if (!HostManager().targetByName(target).isMINGW) listOf("-fPIC") else emptyList(),
+                    Language.CPP -> Triple("clang++",
+                            commonFlags + listOfNotNull("-std=c++14", "-Werror", "-O2",
+                                    "-fPIC".takeIf { !HostManager().targetByName(target).isMINGW }),
                             listOf("**/*.cpp", "**/*.mm"))
+                }
 
         plugin.execKonanClang(target, Action {
             it.workingDir = objDir
